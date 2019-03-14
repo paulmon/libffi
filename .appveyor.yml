@@ -48,9 +48,9 @@ install:
   - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
   - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
   - where cl.exe
+  - set & exit 0
   - dir c:\vcvarsall.bat /s/b & exit 0
   - dir c:\.bashrc /s/b & exit 0
-  - set & exit 0
   - ps: >-
       dir env:
 
