@@ -46,19 +46,32 @@ install:
   - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
   - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
   - where cl.exe
-  - set & exit 0
+  - set | findstr -i arm & exit 0
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
   - 'setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P dejagnu >NUL'
   - '%CYG_ROOT%/bin/bash -lc "cygcheck -dc cygwin"'
-  - dir c:\cygwin\.bashrc /s/b & exit 0
+  - dir c:\cygwin\home\appveyor /s/b & exit 0
+  - type c:\cygwin\home\appveyor\.bashrc
 
 build_script:
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
+  - md c:\projects\libffi\home & exit 0
+  - copy c:\cygwin\home\appveyor\* c:\projects\libffi\home
+#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
+#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
+#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
+#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
 
 # FIXME: "make check" currently fails.  It just looks like msvcc needs
 # to learn about -L and -l options.  If you add "make check; cat `find
 # ./ -name libffi.log" to the end of that build command you'll see
 # what I mean.
+
+artifacts:
+  - path: home
+    name: home_files
+    type: zip
+
+  # - path: arm-pc-cygwin
+  #   name: arm artifacts
+  #   type: zip
+  
