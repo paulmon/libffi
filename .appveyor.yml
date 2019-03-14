@@ -48,7 +48,10 @@ install:
   - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
   - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
   - where cl.exe
-  - set vscmd
+  - dir vcvarsall.bat /s/b
+  - dir .bashrc /s/b
+  - ps: >-
+      dir env:
 
 build_script:
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
