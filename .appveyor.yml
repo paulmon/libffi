@@ -62,7 +62,12 @@ build_script:
   # - dir c:\projects\libffi\home /s/b & exit 0
   # - ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH"'
   # - ps: c:\cygwin\bin\sh -lc 'echo "cd ~;echo "PWD=$PWD"'
-  - ps: $env:MSVCC=$(c:\cygwin\bin\sh -lc "cd $OLDPWD; export MSVCC=`/usr/bin/find $PWD -name msvcc.sh`; echo ${MSVCC};")
+  - echo printenv
+  - c:\cygwin\bin\sh -lc "printenv"
+  - c:\cygwin\bin\sh -lc "cd $OLDPWD; echo $OLDPWD; pwd;"
+  - c:\cygwin\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; echo $APPVEYOR_BUILD_FOLDER; pwd;"
+  - ps: $env:MSVCC=$(c:\cygwin\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; export MSVCC=`find $PWD -name msvcc.sh`; echo ${MSVCC};")
+  - echo MSVCC=%MSVCC%
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include msvcc.sh -Recurse | %{write-host $_.FullName}
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC% %ASSEMBLER%' CXX='%MSVCC% %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
