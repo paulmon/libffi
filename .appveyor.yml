@@ -73,8 +73,8 @@ build_script:
 # what I mean.
 
 after_build:
-  - dir c:\config.log /s/b & exit 0
-  - 7z a config.zip c:\projects\libffi\libffi\arm-w32-cygwin\config.log
+  - dir %APPVEYOR_BUILD_FOLDER%\config.log /s/b & exit 0
+  - 7z a config.zip %APPVEYOR_BUILD_FOLDER%\arm-w32-cygwin\config.log
 
 #artifacts:
   - path: config.zip
