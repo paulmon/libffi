@@ -48,10 +48,13 @@ install:
   - call "%VSCOMNTOOLS%..\..\vc\Auxiliary\Build\vcvarsall.bat" %VCVARS_PLATFORM%
   - where cl.exe
   - set | findstr -i arm & exit 0
+  - echo begin path
+  - set & exit 0
+  - echo end path
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
   - 'setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P dejagnu >NUL'
   - '%CYG_ROOT%/bin/bash -lc "cygcheck -dc cygwin"'
-  - findstr -sipc:"usr.local.bin..usr.bin" %CYG_ROOT%\*
+  - findstr -sipc:"usr.local.bin..usr.bin" %CYG_ROOT%\* & exit 0
 
 build_script:
   # - md c:\projects\libffi\home & exit 0
