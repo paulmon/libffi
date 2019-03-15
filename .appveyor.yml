@@ -57,7 +57,7 @@ build_script:
   - md c:\projects\libffi\home & exit 0
   - copy c:\cygwin\home\appveyor\* c:\projects\libffi\home
   - dir c:\projects\libffi\home /s/b & exit 0
-  -ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH";cd ~;echo "PWD=$PWD"'
+  - ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH";cd ~;echo "PWD=$PWD"'
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
