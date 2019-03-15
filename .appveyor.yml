@@ -10,6 +10,8 @@ shallow_clone: true
 
 image: Visual Studio 2019 Preview
 platform:
+  # - x64
+  # - x86
   - arm
 
 environment:
@@ -32,13 +34,13 @@ install:
           $env:VCVARS_PLATFORM="x86_arm"
           $env:BUILD="arm-pc-cygwin"
           $env:HOST="i686-pc-cygwin"
-          $env:ASSEMBLER="-marm"
+          $env:ASSEMBLER=" -marm"
           $env:SRC_ARCHITECTURE="x86"
         } Else {
           $env:VCVARS_PLATFORM="amd64"
           $env:BUILD="x86_64-w64-cygwin"
           $env:HOST="x86_64-w64-cygwin"
-          $env:ASSEMBLER="-m64"
+          $env:ASSEMBLER=" -m64"
           $env:SRC_ARCHITECTURE="arm"
       }
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
@@ -49,27 +51,14 @@ install:
   - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
   - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
   - call "%VSCOMNTOOLS%..\..\vc\Auxiliary\Build\vcvarsall.bat" %VCVARS_PLATFORM%
-  # - where cl.exe
-  # - set | findstr -i arm & exit 0
-  # - echo begin path
-  - set & exit 0
-  # - echo end path
-  # - findstr -sipc:"usr.local.bin..usr.bin" %CYG_ROOT%\* & exit 0
+  - set > set.txt
 
 build_script:
-  # - md c:\projects\libffi\home & exit 0
-  # - copy c:\cygwin\home\appveyor\* c:\projects\libffi\home
-  # - dir c:\projects\libffi\home /s/b & exit 0
-  # - ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH"'
-  # - ps: c:\cygwin\bin\sh -lc 'echo "cd ~;echo "PWD=$PWD"'
-  - c:\cygwin\bin\sh -lc "cd $OLDPWD; printenv > printenv.txt"
-  - c:\cygwin\bin\sh -lc "cd $OLDPWD; echo $OLDPWD; pwd;"
-  - c:\cygwin\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; echo $APPVEYOR_BUILD_FOLDER; pwd;"
-  - ps: $env:MSVCC=$(c:\cygwin\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; export MSVCC=`find $PWD -name msvcc.sh`; echo ${MSVCC};")
-  - echo MSVCC=%MSVCC%
+  - c:\cygwin\bin\sh -lc "cd $OLDPWD; printenv|sort > printenv.txt"
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include msvcc.sh -Recurse | %{write-host $_.FullName}
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC% %ASSEMBLER%' CXX='%MSVCC% %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
+  # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include msvcc.sh -Recurse | %{write-host $_.FullName}
+  # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC% %ASSEMBLER%' CXX='%MSVCC% %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; MSVCC=`find $PWD -name msvcc.sh`; MSVCC = $MSVCC + $ASSEMBLER; export MSVCC; printenv|sort>printenv2.txt; ./configure CC=$MSVCC CXX=$MSVCC LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
 
@@ -87,4 +76,6 @@ after_build:
 artifacts:
   - path: config.zip
   - path: printenv.txt
+  - path: printenv2.txt
   - path: i686-pc-cygwin\config.log
+  - path: set.txt
