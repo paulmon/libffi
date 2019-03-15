@@ -41,31 +41,31 @@ install:
           $env:ASSEMBLER="-m64"
           $env:SRC_ARCHITECTURE="arm"
       }
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
-  - set v & exit 0
-  - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
-  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
-  - call "%VSCOMNTOOLS%..\..\vc\Auxiliary\Build\vcvarsall.bat" %VCVARS_PLATFORM%
-  - where cl.exe
-  - set | findstr -i arm & exit 0
-  - echo begin path
-  - set & exit 0
-  - echo end path
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
   - 'setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P dejagnu >NUL'
   - '%CYG_ROOT%/bin/bash -lc "cygcheck -dc cygwin"'
-  - findstr -sipc:"usr.local.bin..usr.bin" %CYG_ROOT%\* & exit 0
+  - echo call VsDevCmd to set VS150COMNTOOLS
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
+  - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
+  - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
+  - call "%VSCOMNTOOLS%..\..\vc\Auxiliary\Build\vcvarsall.bat" %VCVARS_PLATFORM%
+  # - where cl.exe
+  # - set | findstr -i arm & exit 0
+  # - echo begin path
+  # - set & exit 0
+  # - echo end path
+  # - findstr -sipc:"usr.local.bin..usr.bin" %CYG_ROOT%\* & exit 0
 
 build_script:
   # - md c:\projects\libffi\home & exit 0
   # - copy c:\cygwin\home\appveyor\* c:\projects\libffi\home
   # - dir c:\projects\libffi\home /s/b & exit 0
   # - ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH"'
-  - ps: c:\cygwin\bin\sh -lc 'echo "cd ~;echo "PWD=$PWD"'
-#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
-#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
-#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
-#  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
+  # - ps: c:\cygwin\bin\sh -lc 'echo "cd ~;echo "PWD=$PWD"'
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
 
 # FIXME: "make check" currently fails.  It just looks like msvcc needs
 # to learn about -L and -l options.  If you add "make check; cat `find
