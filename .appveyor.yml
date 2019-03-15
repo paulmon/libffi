@@ -52,7 +52,7 @@ install:
   # - where cl.exe
   # - set | findstr -i arm & exit 0
   # - echo begin path
-  # - set & exit 0
+  - set & exit 0
   # - echo end path
   # - findstr -sipc:"usr.local.bin..usr.bin" %CYG_ROOT%\* & exit 0
 
@@ -65,7 +65,7 @@ build_script:
   - ps: $env:MSVCC=$(& $env:SH -lc "cd $OLDPWD; export MSVCC=`/usr/bin/find $PWD -name msvcc.sh`; echo ${MSVCC};")
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include msvcc.sh -Recurse | %{write-host $_.FullName}
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC% %ASSEMBLER%' CXX='%MSVCC% %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
 
