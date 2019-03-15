@@ -51,7 +51,7 @@ install:
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
   - 'setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P dejagnu >NUL'
   - '%CYG_ROOT%/bin/bash -lc "cygcheck -dc cygwin"'
-  - findstr -sip path %CYG_ROOT%\*
+  - findstr -sipc:"usr.local.bin..usr.bin" %CYG_ROOT%\*
 
 build_script:
   # - md c:\projects\libffi\home & exit 0
