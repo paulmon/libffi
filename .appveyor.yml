@@ -74,10 +74,10 @@ build_script:
 
 after_build:
   - dir %APPVEYOR_BUILD_FOLDER%\config.log /s/b & exit 0
-  - echo %APPVEYOR_BUILD_FOLDER%\arm-w32-cygwin\config.log
-  - ps: type $(%APPVEYOR_BUILD_FOLDER%\config.log /s/b)
-  - type %APPVEYOR_BUILD_FOLDER%\arm-w32-cygwin\config.log & exit 0
-  - 7z a config.zip %APPVEYOR_BUILD_FOLDER%\arm-w32-cygwin\config.log
+  # - echo %APPVEYOR_BUILD_FOLDER%\arm-w32-cygwin\config.log
+  # - type %APPVEYOR_BUILD_FOLDER%\arm-w32-cygwin\config.log & exit 0
+  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{type $_.FullName}
+  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
 
 #artifacts:
   - path: config.zip
