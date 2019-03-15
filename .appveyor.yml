@@ -18,7 +18,7 @@ environment:
     CYG_CACHE: C:/cygwin/var/cache/setup
     CYG_MIRROR: http://mirrors.kernel.org/sourceware/cygwin/
   matrix:
-    - VSVER: 14
+    - VSVER: 15
 
 install:
   - ps: >-
@@ -41,6 +41,7 @@ install:
           $env:ASSEMBLER="-m64"
           $env:SRC_ARCHITECTURE="arm"
       }
+  - "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"
   - set v & exit 0
   - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
   - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
@@ -50,14 +51,13 @@ install:
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
   - 'setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P dejagnu >NUL'
   - '%CYG_ROOT%/bin/bash -lc "cygcheck -dc cygwin"'
-  - dir c:\cygwin\home\appveyor /s/b & exit 0
-  - type c:\cygwin\home\appveyor\.bashrc
 
 build_script:
   - md c:\projects\libffi\home & exit 0
   - copy c:\cygwin\home\appveyor\* c:\projects\libffi\home
   - dir c:\projects\libffi\home /s/b & exit 0
-  - ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH";cd ~;echo "PWD=$PWD"'
+#  - ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH"'
+  - ps: c:\cygwin\bin\sh -lc 'echo "cd ~;echo "PWD=$PWD"'
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
@@ -68,11 +68,11 @@ build_script:
 # ./ -name libffi.log" to the end of that build command you'll see
 # what I mean.
 
-after_build:
-  - 7z a home.zip c:\cygwin\home\appveyor\*
+#after_build:
+#  - 7z a home.zip c:\cygwin\home\appveyor\*
 
-artifacts:
-  - path: home.zip
+#artifacts:
+#  - path: home.zip
 
 #    name: home_files
 #    type: zip
