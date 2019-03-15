@@ -63,7 +63,7 @@ build_script:
   # - ps: c:\cygwin\bin\sh -lc 'echo "PATH=$PATH"'
   # - ps: c:\cygwin\bin\sh -lc 'echo "cd ~;echo "PWD=$PWD"'
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include msvcc.sh -Recurse | %{type $_.FullName}
+  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include msvcc.sh -Recurse | %{write-host $_.FullName}
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
@@ -74,9 +74,10 @@ build_script:
 # what I mean.
 
 after_build:
+  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{write-host $_.FullName}
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{type $_.FullName}
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\*.zip -Recurse | %{type $_.FullName}
+  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\*.zip -Recurse | %{write-host $_.FullName}
 
 #artifacts:
   - path: config.zip
