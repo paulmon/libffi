@@ -56,6 +56,7 @@ install:
 build_script:
   - md c:\projects\libffi\home & exit 0
   - copy c:\cygwin\home\appveyor\* c:\projects\libffi\home
+  - dir c:\projects\libffi\home /s/b & exit 0
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' CXX='/cygdrive/c/projects/libffi/msvcc.sh %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
 #  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
@@ -66,10 +67,14 @@ build_script:
 # ./ -name libffi.log" to the end of that build command you'll see
 # what I mean.
 
+after_build:
+  - 7z a home.zip c:\cygwin\home\appveyor\*
+
 artifacts:
-  - path: home
-    name: home_files
-    type: zip
+  - path: home.zip
+
+#    name: home_files
+#    type: zip
 
   # - path: arm-pc-cygwin
   #   name: arm artifacts
