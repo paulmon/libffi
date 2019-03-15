@@ -34,13 +34,13 @@ install:
           $env:VCVARS_PLATFORM="x86_arm"
           $env:BUILD="arm-pc-cygwin"
           $env:HOST="i686-pc-cygwin"
-          $env:ASSEMBLER=" -marm"
+          $env:ASSEMBLER="-marm"
           $env:SRC_ARCHITECTURE="x86"
         } Else {
           $env:VCVARS_PLATFORM="amd64"
           $env:BUILD="x86_64-w64-cygwin"
           $env:HOST="x86_64-w64-cygwin"
-          $env:ASSEMBLER=" -m64"
+          $env:ASSEMBLER="-m64"
           $env:SRC_ARCHITECTURE="arm"
       }
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
@@ -57,7 +57,7 @@ build_script:
   - c:\cygwin\bin\sh -lc "cd $OLDPWD; printenv|sort > printenv.txt"
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC% %ASSEMBLER%' CXX='%MSVCC% %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; MSVCC=`find $PWD -name msvcc.sh`; MSVCC = $MSVCC + $ASSEMBLER; export MSVCC; printenv|sort>printenv2.txt; ./configure CC=$MSVCC CXX=$MSVCC LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; MSVCC_SH=`find $PWD -name msvcc.sh`; export MSVCC=\"$MSVCC_SH $ASSEMBLER\"; printenv|sort>printenv2.txt; echo $MSVCC>msvcc.txt; ./configure CC=$MSVCC CXX=$MSVCC LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)" & exit 0
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
 
@@ -70,17 +70,18 @@ after_build:
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{write-host $_.FullName}
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
 
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_} ; exit 0
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.lib -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_} ; exit 0
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include fficonfig.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}  ; exit 0
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include ffi.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}        ; exit 0
-  - ps: dir -Path .\* -recurse -include ffitarget.h | Resolve-Path -Relative | ?{$_ -inotmatch "src"} | %{7z a libffi.zip $_}    ; exit 0
+  - ps: try{ dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}catch{} ; exit 0
+  # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.lib -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_} ; exit 0
+  # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include fficonfig.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}  ; exit 0
+  # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include ffi.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}        ; exit 0
+  # - ps: dir -Path .\* -recurse -include ffitarget.h | Resolve-Path -Relative | ?{$_ -inotmatch "src"} | %{7z a libffi.zip $_}    ; exit 0
 
 artifacts:
   - path: config.zip
   - path: libffi.zip
   - path: printenv.txt
   - path: printenv2.txt
+  - path: msvcc.txt
   - path: i686-pc-cygwin\config.log
   - path: x86_64-w64-cygwin\config.log
   - path: arm-pc-cygwin\config.log
