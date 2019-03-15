@@ -70,7 +70,7 @@ after_build:
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{write-host $_.FullName}
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
 
-  - ps: try{ dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}catch{} ; exit 0
+  # - ps: try{ dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}catch{} ; exit 0
   # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.lib -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_} ; exit 0
   # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include fficonfig.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}  ; exit 0
   # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include ffi.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}        ; exit 0
