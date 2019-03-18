@@ -86,3 +86,6 @@ artifacts:
   - path: libffi.zip
   - path: printenv.txt
   - path: set.txt
+  - path: arm-w32-cygwin
+  - path: x86_64-w64-cygwin
+  - path: i686-pc-cygwin
