@@ -32,8 +32,8 @@ install:
           $env:SRC_ARCHITECTURE="x86"
         } ElseIf ($env:Platform -Match "arm") {
           $env:VCVARS_PLATFORM="x86_arm"
-          $env:BUILD="arm-pc-cygwin"
-          $env:HOST="i686-pc-cygwin"
+          $env:BUILD="i686-pc-cygwin"
+          $env:HOST="arm-w32-cygwin"
           $env:MSVCC="/cygdrive/c/projects/libffi/msvcc.sh -marm"
           $env:SRC_ARCHITECTURE="arm"
         } Else {
