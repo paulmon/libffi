@@ -8,7 +8,7 @@ shallow_clone: true
 #  32- and 64-bit clang/mingw
 #  and perhaps more.
 
-image: Visual Studio 2019 Preview
+image: Visual Studio 2017
 platform:
   # - x64
   # - x86
@@ -19,30 +19,30 @@ environment:
     CYG_ROOT: C:/cygwin
     CYG_CACHE: C:/cygwin/var/cache/setup
     CYG_MIRROR: http://mirrors.kernel.org/sourceware/cygwin/
-    MSVCC: /cygdrive/c/projects/libffi/msvcc.sh
   matrix:
     - VSVER: 15
 
 install:
   - ps: >-
+      Write-Host "APPVEYOR_BUILD_FOLDER=$env:APPVEYOR_BUILD_FOLDER"
       If ($env:Platform -Match "x86") {
           $env:VCVARS_PLATFORM="x86"
           $env:BUILD="i686-pc-cygwin"
           $env:HOST="i686-pc-cygwin"
-          $env:ASSEMBLER=""
+          $env:MSVCC="/cygdrive/c/projects/libffi/msvcc.sh"
           $env:SRC_ARCHITECTURE="x86"
         } ElseIf ($env:Platform -Match "arm") {
           $env:VCVARS_PLATFORM="x86_arm"
           $env:BUILD="arm-pc-cygwin"
           $env:HOST="i686-pc-cygwin"
-          $env:ASSEMBLER="-marm"
-          $env:SRC_ARCHITECTURE="x86"
+          $env:MSVCC="/cygdrive/c/projects/libffi/msvcc.sh -marm"
+          $env:SRC_ARCHITECTURE="arm"
         } Else {
           $env:VCVARS_PLATFORM="amd64"
           $env:BUILD="x86_64-w64-cygwin"
           $env:HOST="x86_64-w64-cygwin"
-          $env:ASSEMBLER="-m64"
-          $env:SRC_ARCHITECTURE="arm"
+          $env:ASSEMBLER="/cygdrive/c/projects/libffi/msvcc.sh -m64"
+          $env:SRC_ARCHITECTURE="x86"
       }
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
   - 'setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P dejagnu >NUL'
@@ -53,19 +53,12 @@ install:
   - echo "Using Visual Studio %VSVER%.0 at %VSCOMNTOOLS%"
   - call "%VSCOMNTOOLS%..\..\vc\Auxiliary\Build\vcvarsall.bat" %VCVARS_PLATFORM%
   - set > set.txt
-  # - cmd: >-
-  #     set GET_MSVCC=%SH% -lc "cd $OLDPWD; export MSVCC=`/usr/bin/find $PWD -name msvcc.sh`; echo ${MSVCC};"
-  #     FOR /F "usebackq delims==" %%i IN (`%GET_MSVCC%`) do @set MSVCC=%%i
-  #     echo %MSVCC%
+  - c:\cygwin\bin\sh -lc "cd $OLDPWD; printenv|sort > printenv.txt"
 
 build_script:
-  - c:\cygwin\bin\sh -lc "cd $OLDPWD; printenv|sort > printenv.txt"
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
-  - echo %MSVCC%
-  # - set GET_MSVCC=%SH% -lc "cd $OLDPWD; export MSVCC=`/usr/bin/find $PWD -name msvcc.sh`; echo ${MSVCC};" & FOR /F "usebackq delims==" %%i IN (`%GET_MSVCC%`) do @set MSVCC=%%i & c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC% %ASSEMBLER%' CXX='%MSVCC% %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
-  # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; MSVCC_SH=`find $PWD -name msvcc.sh`; export MSVCC=\"$MSVCC_SH $ASSEMBLER\"; printenv|sort>msvcc.txt; ./configure CC=\'\"$MSVCC\"\' CXX=\'\"$MSVCC\"\' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC% %ASSEMBLER%' CXX='%MSVCC% %ASSEMBLER%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)" & exit 0
-  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)" & exit 0
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC%' CXX='%MSVCC%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
   # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
 
 # FIXME: "make check" currently fails.  It just looks like msvcc needs
@@ -77,11 +70,11 @@ after_build:
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{write-host $_.FullName}
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
 
-  # - ps: try{ dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}catch{} ; exit 0
-  # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.lib -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_} ; exit 0
-  # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include fficonfig.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}  ; exit 0
-  # - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include ffi.h -Recurse | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}        ; exit 0
-  # - ps: dir -Path .\* -recurse -include ffitarget.h | Resolve-Path -Relative | ?{$_ -inotmatch "src"} | %{7z a libffi.zip $_}    ; exit 0
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse; if($files.Count>0){ $files | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.lib -Recurse; if($files.Count>0){ $files | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include fficonfig.h -Recurse; if($files.Count>0){ $files | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include ffi.h -Recurse; if($files.Count>0){ $files | Resolve-Path $_ -Relative| %{7z a libffi.zip $_}}
+  - ps: $files = dir -Path .\* -recurse -include ffitarget.h; if($files.Count>0){ $files | Resolve-Path -Relative | ?{$_ -inotmatch "src"} | %{7z a libffi.zip $_}}
 
 artifacts:
   - path: config.zip
