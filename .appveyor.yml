@@ -24,7 +24,6 @@ environment:
 
 install:
   - ps: >-
-      Write-Host "APPVEYOR_BUILD_FOLDER=$env:APPVEYOR_BUILD_FOLDER"
       If ($env:Platform -Match "x86") {
           $env:VCVARS_PLATFORM="x86"
           $env:BUILD="i686-pc-cygwin"
@@ -44,6 +43,7 @@ install:
           $env:ASSEMBLER="/cygdrive/c/projects/libffi/msvcc.sh -m64"
           $env:SRC_ARCHITECTURE="x86"
       }
+  - echo APPVEYOR_BUILD_FOLDER=%APPVEYOR_BUILD_FOLDER%
   - 'appveyor DownloadFile https://cygwin.com/setup-x86.exe -FileName setup.exe'
   - 'setup.exe -qnNdO -R "%CYG_ROOT%" -s "%CYG_MIRROR%" -l "%CYG_CACHE%" -P dejagnu >NUL'
   - '%CYG_ROOT%/bin/bash -lc "cygcheck -dc cygwin"'
