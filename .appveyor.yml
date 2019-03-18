@@ -58,7 +58,7 @@ build_script:
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./autogen.sh;)"
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; ./configure CC='%MSVCC%' CXX='%MSVCC%' LD='link' CPP='cl -nologo -EP' CXXCPP='cl -nologo -EP' CPPFLAGS='-DFFI_BUILDING_DLL' AR='/cygdrive/c/projects/libffi/.travis/ar-lib lib' NM='dumpbin -symbols' STRIP=':' --build=$BUILD --host=$HOST;)"
   - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp src/%SRC_ARCHITECTURE%/ffitarget.h include; make; find .;)"
-  # - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
+  - c:\cygwin\bin\sh -lc "(cd $OLDPWD; cp `find . -name 'libffi-?.dll'` $HOST/testsuite/; make check; cat `find ./ -name libffi.log`)"
 
 # FIXME: "make check" currently fails.  It just looks like msvcc needs
 # to learn about -L and -l options.  If you add "make check; cat `find
@@ -68,6 +68,12 @@ build_script:
 after_build:
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{write-host $_.FullName}
   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
+
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.lib -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include fficonfig.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+  - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include ffi.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+  - ps: $files = dir -Path .\* -recurse -include ffitarget.h; if($files.Count>0){ Resolve-Path $files -Relative | ?{$_ -inotmatch "src"} | %{write-host $_}}
 
   - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.dll -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
   - ps: $files = dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include libffi-7.lib -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
