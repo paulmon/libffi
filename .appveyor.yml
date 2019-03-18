@@ -10,8 +10,8 @@ shallow_clone: true
 
 image: Visual Studio 2017
 platform:
-  # - x64
-  # - x86
+  - x64
+  - x86
   - arm
 
 environment:
@@ -65,27 +65,27 @@ build_script:
 # ./ -name libffi.log" to the end of that build command you'll see
 # what I mean.
 
-after_build:
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{write-host $_.FullName}
-  - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
+# after_build:
+#   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{write-host $_.FullName}
+#   - ps: dir -Path $env:APPVEYOR_BUILD_FOLDER\* -include config.log -Recurse | %{7z a config.zip $_.FullName}
 
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.dll -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.lib -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include fficonfig.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include ffi.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
-  - ps: $files = dir -Path .\* -recurse -include ffitarget.h; if($files.Count>0){ Resolve-Path $files -Relative | ?{$_ -inotmatch "src"} | %{write-host $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.dll -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.lib -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include fficonfig.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include ffi.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{write-host $_}}
+#   - ps: $files = dir -Path .\* -recurse -include ffitarget.h; if($files.Count>0){ Resolve-Path $files -Relative | ?{$_ -inotmatch "src"} | %{write-host $_}}
 
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.dll -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.lib -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include fficonfig.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
-  - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include ffi.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
-  - ps: $files = dir -Path .\* -recurse -include ffitarget.h; if($files.Count>0){ Resolve-Path $files -Relative | ?{$_ -inotmatch "src"} | %{7z a libffi.zip $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.dll -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include libffi-7.lib -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include fficonfig.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
+#   - ps: $files = dir -Path "$env:APPVEYOR_BUILD_FOLDER\*" -include ffi.h -Recurse; if($files.Count>0){ Resolve-Path $files -Relative| %{7z a libffi.zip $_}}
+#   - ps: $files = dir -Path .\* -recurse -include ffitarget.h; if($files.Count>0){ Resolve-Path $files -Relative | ?{$_ -inotmatch "src"} | %{7z a libffi.zip $_}}
 
-artifacts:
-  - path: config.zip
-  - path: libffi.zip
-  - path: printenv.txt
-  - path: set.txt
-  - path: arm-w32-cygwin
-  - path: x86_64-w64-cygwin
-  - path: i686-pc-cygwin
+# artifacts:
+#   - path: config.zip
+#   - path: libffi.zip
+#   - path: printenv.txt
+#   - path: set.txt
+#   - path: arm-w32-cygwin
+#   - path: x86_64-w64-cygwin
+#   - path: i686-pc-cygwin
